@@ -18,7 +18,10 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    "allowJs": true /* Allow javascript files to be compiled. */,
+    "checkJs": true /* Report errors in .js files. */
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

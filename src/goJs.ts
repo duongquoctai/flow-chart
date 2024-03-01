@@ -1,39 +1,40 @@
+import * as go from "gojs";
+
 export const initDiagram = () => {
-  const diagram = new go.Diagram("myDiagramDiv");
-  diagram.nodeTemplate = new go.Node(
-    "Horizontal",
-    // the entire node will have a light-blue background
-    { background: "#44CCFF" }
-  )
-    .add(
-      new go.Picture(
-        // Pictures should normally have an explicit width and height.
-        // This picture has a red background, only visible when there is no source set
-        // or when the image is partially transparent.
-        { margin: 10, width: 50, height: 50, background: "red" }
-      )
-        // Picture.source is data bound to the "source" attribute of the model data
-        .bind("source")
-    )
-    .add(
-      new go.TextBlock(
-        "Default Text", // the initial value for TextBlock.text
-        // some room around the text, a larger font, and a white stroke:
-        { margin: 12, stroke: "white", font: "bold 16px sans-serif" }
-      )
-        // TextBlock.text is data bound to the "name" property of the model data
-        .bind("text", "name")
-    );
-  diagram.model = new go.Model([
-    // note that each node data object holds whatever properties it needs;
-    // for this app we add the "name" and "source" properties
-    // because in our template above, we have defined bindings to expect them
-    { name: "Don Meow", source: "cat1.png" },
-    { name: "Copricat", source: "cat2.png" },
-    { name: "Demeter", source: "cat3.png" },
-    {
-      /* Empty node data, to show a node with no values from bindings */
+  const $ = go.GraphObject.make;
+  // set your license key here before creating the diagram: go.Diagram.licenseKey = "...";
+  const diagram = $(go.Diagram, {
+    "undoManager.isEnabled": true, // must be set to allow for model change listening
+    // 'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
+    "clickCreatingTool.archetypeNodeData": {
+      text: "new node",
+      color: "lightblue",
     },
-  ]);
+    model: new go.GraphLinksModel({
+      linkKeyProperty: "key", // IMPORTANT! must be defined for merges and data sync when using GraphLinksModel
+    }),
+  });
+
+  // define a simple Node template
+  diagram.nodeTemplate = $(
+    go.Node,
+    "Auto", // the Shape will go around the TextBlock
+    new go.Binding("location", "loc", go.Point.parse).makeTwoWay(
+      go.Point.stringify
+    ),
+    $(
+      go.Shape,
+      "RoundedRectangle",
+      { name: "SHAPE", fill: "white", strokeWidth: 0 },
+      // Shape.fill is bound to Node.data.color
+      new go.Binding("fill", "color")
+    ),
+    $(
+      go.TextBlock,
+      { margin: 8, editable: true }, // some room around the text
+      new go.Binding("text").makeTwoWay()
+    )
+  );
+
   return diagram;
 };
